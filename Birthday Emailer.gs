@@ -53,7 +53,7 @@ function sendEmail() {
     htmlBody: emailBody,
     name: "Birthday Emailing Committee" 
     }
-  const body = "";//"Dear All. Sorry for making you my test subjects. Please ignore this email. -Daryl";
-  MailApp.sendEmail("hori.himawari@link-gs.co.jp", subject, body, options);
+  const body = "";//"Dear All. Sorry for making you my test subjects. Please ignore this email.";
+  MailApp.sendEmail("EMAIL", subject, body, options);
   
 }
