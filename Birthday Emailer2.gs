@@ -11,14 +11,14 @@ function sendEmailFullAuto(){
       const header = headersText[0][i];
       headerObj[`${header}_Col`] = data[0].indexOf(header);
     }
-    // console.log(headerObj)
+    console.log("headers:", headerObj)
   
     //create email list
     let emailList = [];
     for(a=1; a<data.length; a++){
       emailList.push(data[a][headerObj['email_Col']]);
     }
-    console.log(emailList)
+    console.log("full email list:", emailList)
   
     for(i=1; i<data.length; i++){
       //check for birthday dates
@@ -39,21 +39,20 @@ function sendEmailFullAuto(){
   
       //if today is one week before birthday and link is not blank...
       if(today.getTime() == birthdayMinus7.getTime() && link !== ""){
-        console.warn("Send yosetti link!")
+        console.warn("Send yosetti link!", link)
         const name = data[i][headerObj['name_Col']];
         const email = data[i][headerObj['email_Col']];
         const gender = data[i][headerObj['gender_Col']];
-        
         const status = data[i][headerObj['status_Col']];
   
         //create new email list
         const birthdayIndex = emailList.indexOf(email);
         emailList.splice(birthdayIndex, 1);
         const newEmailList = emailList.join();
-        console.log(newEmailList)
+        console.log("New email list:", newEmailList)
   
         const birthdayFormat = Utilities.formatDate(birthday, "Asia/Tokyo", 'MMMM dd')
-        // console.log(birthdayFormat)
+        
         let dueDate = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate()-2)
         if(dueDate.getDay() == 6){ // 6 = Sat
           dueDate = new Date(today.getFullYear(), dueDate.getMonth(), dueDate.getDate()-1)
