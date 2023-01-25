@@ -14,10 +14,7 @@ function sendEmailFullAuto(){
     console.log("headers:", headerObj)
   
     //create email list
-    let emailList = [];
-    for(a=1; a<data.length; a++){
-      emailList.push(data[a][headerObj['email_Col']]);
-    }
+    const emailList = generateEmailList_(data, headerObj);
     console.log("full email list:", emailList)
   
     for(i=1; i<data.length; i++){
@@ -29,8 +26,7 @@ function sendEmailFullAuto(){
       }
   
       //check if today is one week before birthday
-      let today = new Date()
-      today = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+      const today = new Date()
       const birthdayMinus7 = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate() - 7)
       console.log("today:", today)
       console.log("birthday-7:", birthdayMinus7)
@@ -38,7 +34,7 @@ function sendEmailFullAuto(){
       const link = data[i][headerObj['link_Col']];
   
       //if today is one week before birthday and link is not blank...
-      if(today.getTime() == birthdayMinus7.getTime() && link !== ""){
+      if(today.getTime() == birthdayMinus7.getTime() && link){
         console.warn("Send yosetti link!", link)
         const name = data[i][headerObj['name_Col']];
         const email = data[i][headerObj['email_Col']];
@@ -47,23 +43,16 @@ function sendEmailFullAuto(){
   
         //create new email list
         const birthdayIndex = emailList.indexOf(email);
-        emailList.splice(birthdayIndex, 1);
-        const newEmailList = emailList.join();
+        const newEmailList = generateNewEmailList_(emailList, birthdayIndex)
         console.log("New email list:", newEmailList)
-  
-        const birthdayFormat = Utilities.formatDate(birthday, "Asia/Tokyo", 'MMMM dd')
         
-        let dueDate = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate()-2)
-        if(dueDate.getDay() == 6){ // 6 = Sat
-          dueDate = new Date(today.getFullYear(), dueDate.getMonth(), dueDate.getDate()-1)
-        } else if(dueDate.getDay() == 0){ // 0 = Sun
-          dueDate = new Date(today.getFullYear(), dueDate.getMonth(), dueDate.getDate()-2)
-        }
+        const dueDate = getDueDate_(birthday);
         console.log("Due:", dueDate)
-        const dueDateFormat = Utilities.formatDate(dueDate, "Asia/Tokyo", 'MMMM dd')
-  
+        
         //email template
-        const emailTemplate = "Birthday Reminder Email";
+        const dueDateFormat = Utilities.formatDate(dueDate, "Asia/Tokyo", 'MMMM dd')
+        const birthdayFormat = Utilities.formatDate(birthday, "Asia/Tokyo", 'MMMM dd')
+        const emailTemplate = "Birthday Reminder template";
         const templateIndex = HtmlService.createTemplateFromFile(emailTemplate);
         templateIndex.name = name;
         templateIndex.gender = gender;
@@ -74,20 +63,43 @@ function sendEmailFullAuto(){
         const emailBody = templateIndex.evaluate().getContent();
 
         //emailer
+        const myEmail = Session.getActiveUser().getEmail()
         const subject = "RRO: Request for Birthday Messages to " + name + " by " + dueDateFormat;
         const options = { 
             bcc: newEmailList,
             htmlBody: emailBody,
             }
         try{
-          //GmailApp.sendEmail(<YOUR EMAIL>, subject, htmlBody, options);
+          GmailApp.sendEmail(myEmail, subject, htmlBody, options);
           sheet.getRange(i+1, status+1).setValue("Email sent");
         } catch (error){
           console.error(error);
           sheet.getRange(i+1, status+1).setValue(error);
         }
-            
       }
     }
   }
-  
+
+function generateEmailList_(data, headerObj) {
+    let emailList = [];
+    for(i=1; i<data.length; i++){
+      emailList.push(data[i][headerObj['email_Col']]);
+    }
+    return emailList;
+}
+
+function generateNewEmailList_(emailList, index){
+  emailList.splice(index, 1)
+  const newEmailList = emailList.join()
+  return newEmailList
+}
+
+function getDueDate_(birthday) {
+  let dueDate = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate()-2)
+  if (dueDate.getDay() === 6) { // 6 = Sat
+    dueDate = new Date(today.getFullYear(), dueDate.getMonth(), dueDate.getDate()-1)
+  } else if (dueDate.getDay() === 0) { // 0 = Sun
+    dueDate = new Date(today.getFullYear(), dueDate.getMonth(), dueDate.getDate()-2)
+  }
+  return dueDate;
+}
