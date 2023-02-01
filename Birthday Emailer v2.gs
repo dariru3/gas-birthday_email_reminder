@@ -1,6 +1,6 @@
 function sendEmailFullAuto(){
     //connect to spreadsheet
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("LGS Birthdays v2");
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
     const data = sheet.getDataRange().getValues();
     const lastCol = sheet.getLastColumn();
     const headersText = sheet.getRange(1, 1, 1, lastCol).getValues();
