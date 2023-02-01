@@ -100,6 +100,7 @@ function generateNewEmailList_(emailList, index){
 function getDueDate_(birthday) {
   const today = new Date()
   let dueDate = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate()-2)
+  //if due date falls on weekend, change to Friday before
   if (dueDate.getDay() === 6) { // 6 = Sat
     dueDate = new Date(today.getFullYear(), dueDate.getMonth(), dueDate.getDate()-1)
   } else if (dueDate.getDay() === 0) { // 0 = Sun
