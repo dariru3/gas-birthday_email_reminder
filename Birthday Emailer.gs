@@ -1,15 +1,3 @@
-//add menu
-function onOpen(){
-  const ui = SpreadsheetApp.getUi();
-  ui.createMenu('Birthday Reminder')
-    .addItem('Send birthday reminder', 'sendEmail')
-    .addToUi();
-}
-
-//connect to spreadsheet
-const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-
-
 function sendEmail() {
   //create email list
   const birthdaySheetName = 'LGS Birthdays';
@@ -65,7 +53,7 @@ function sendEmail() {
     htmlBody: emailBody,
     name: "Birthday Emailing Committee" 
     }
-  const body = "";//"Dear All. Sorry for making you my test subjects. Please ignore this email.";
-  MailApp.sendEmail("EMAIL", subject, body, options);
+  const body = "";//"Dear All. Sorry for making you my test subjects. Please ignore this email. -Daryl";
+  MailApp.sendEmail("son.kohhoh@link-gs.co.jp", subject, body, options);
   
 }

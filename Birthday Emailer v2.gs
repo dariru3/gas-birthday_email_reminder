@@ -1,6 +1,6 @@
 function sendEmailFullAuto(){
     //connect to spreadsheet
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("LGS Birthdays v2");
     const data = sheet.getDataRange().getValues();
     const lastCol = sheet.getLastColumn();
     const headersText = sheet.getRange(1, 1, 1, lastCol).getValues();
@@ -26,15 +26,16 @@ function sendEmailFullAuto(){
       }
   
       //check if today is one week before birthday
-      const today = new Date()
+      let today = new Date()
+      let todayFormat = new Date(today.getFullYear(), today.getMonth(), today.getDate())
       const birthdayMinus7 = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate() - 7)
-      console.log("today:", today)
+      console.log("today:", todayFormat)
       console.log("birthday-7:", birthdayMinus7)
 
       const link = data[i][headerObj['link_Col']];
   
       //if today is one week before birthday and link is not blank...
-      if(today.getTime() == birthdayMinus7.getTime() && link){
+      if(todayFormat.getTime() == birthdayMinus7.getTime() && link){
         console.warn("Send yosetti link!", link)
         const name = data[i][headerObj['name_Col']];
         const email = data[i][headerObj['email_Col']];
@@ -52,7 +53,7 @@ function sendEmailFullAuto(){
         //email template
         const dueDateFormat = Utilities.formatDate(dueDate, "Asia/Tokyo", 'MMMM dd')
         const birthdayFormat = Utilities.formatDate(birthday, "Asia/Tokyo", 'MMMM dd')
-        const emailTemplate = "Birthday Reminder template";
+        const emailTemplate = "Birthday mail";
         const templateIndex = HtmlService.createTemplateFromFile(emailTemplate);
         templateIndex.name = name;
         templateIndex.gender = gender;
@@ -65,16 +66,18 @@ function sendEmailFullAuto(){
         //emailer
         const myEmail = Session.getActiveUser().getEmail()
         const subject = "RRO: Request for Birthday Messages to " + name + " by " + dueDateFormat;
+        const body = "";
         const options = { 
             bcc: newEmailList,
             htmlBody: emailBody,
             }
         try{
-          GmailApp.sendEmail(myEmail, subject, htmlBody, options);
-          sheet.getRange(i+1, status+1).setValue("Email sent");
+          GmailApp.sendEmail(myEmail, subject, body, options);
+          console.log("Email sent!")
+          //sheet.getRange(i+1, status+1).setValue("Email sent");
         } catch (error){
-          console.error(error);
-          sheet.getRange(i+1, status+1).setValue(error);
+          console.error("Email error:", error);
+          //sheet.getRange(i+1, status+1).setValue(error);
         }
       }
     }
@@ -95,6 +98,7 @@ function generateNewEmailList_(emailList, index){
 }
 
 function getDueDate_(birthday) {
+  const today = new Date()
   let dueDate = new Date(today.getFullYear(), birthday.getMonth(), birthday.getDate()-2)
   if (dueDate.getDay() === 6) { // 6 = Sat
     dueDate = new Date(today.getFullYear(), dueDate.getMonth(), dueDate.getDate()-1)
